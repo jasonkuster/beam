@@ -1009,6 +1009,7 @@
             <trimStackTrace>false</trimStackTrace>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <argLine>${beamSurefireArgline}</argLine>
+            <skipTests>${skipSurefire}</skipTests>
           </configuration>
           <dependencies>
             <dependency>
