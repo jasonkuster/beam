@@ -81,6 +81,7 @@ class common_job_properties {
 
   // Sets the pull request build trigger.
   static def setPullRequestBuildTrigger(def context,
+                                        def branchWhitelist,
                                         def commitStatusContext,
                                         def successComment = '--none--') {
     context.triggers {
@@ -88,6 +89,7 @@ class common_job_properties {
         admins(['asfbot'])
         useGitHubHooks()
         orgWhitelist(['apache'])
+        whiteListTargetBranches(branchWhitelist)
         allowMembersOfWhitelistedOrgsAsAdmin()
         permitAll()
 

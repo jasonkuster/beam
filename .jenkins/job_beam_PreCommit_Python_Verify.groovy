@@ -18,28 +18,21 @@
 
 import common_job_properties
 
-// This is the Java precommit which runs a maven install, and the current set
-// of precommit tests.
-mavenJob('beam_PreCommit_Java_MavenInstall') {
-  description('Runs an install of the current GitHub Pull Request.')
-
-  previousNames('beam_PreCommit_MavenVerify')
+// This job defines the Python postcommit tests.
+job('beam_PreCommit_Python_Verify') {
+  description('Runs precommit tests on the Python SDK.')
 
   // Execute concurrent builds if necessary.
   concurrentBuild()
 
   // Set common parameters.
-  common_job_properties.setTopLevelJobProperties(delegate)
-
-  // Set Maven parameters.
-  common_job_properties.setMavenConfig(delegate)
-
-  // Whitelists certain branches for this PreCommit.
-  branches = ['master', 'gearpump-runner']
+  common_job_properties.setTopLevelJobProperties(delegate, 'python-sdk')
 
   // Sets that this is a PreCommit job.
-  common_job_properties.setPreCommit(delegate, branches, 'Jenkins: Maven clean install')
+  common_job_properties.setPreCommit(delegate, ['python-sdk'], 'Jenkins: Python PreCommit')
 
-  // Maven goals for this job.
-  goals('-B -e -Prelease,include-runners,jenkins-precommit,direct-runner,dataflow-runner,spark-runner,flink-runner,apex-runner help:effective-settings clean install')
+  // Execute shell command to test Python SDK.
+  steps {
+    shell('bash sdks/python/run_precommit.sh')
+  }
 }
