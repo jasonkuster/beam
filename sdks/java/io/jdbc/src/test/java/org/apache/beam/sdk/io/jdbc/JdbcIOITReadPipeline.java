@@ -25,22 +25,16 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.BigEndianIntegerCoder;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.testing.PAssert;
-import org.apache.beam.sdk.testing.TestPipeline;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.postgresql.ds.PGSimpleDataSource;
 
 
@@ -61,19 +55,17 @@ import org.postgresql.ds.PGSimpleDataSource;
  * ]' -DskipITs=false -Dit.test=org.apache.beam.sdk.io.jdbc.JdbcIOIT -DfailIfNoTests=false
  * </pre>
  */
-@RunWith(JUnit4.class)
-public class JdbcIOIT {
+public class JdbcIOITReadPipeline {
   private static PGSimpleDataSource dataSource;
-  private static String writeTableName;
 
-  @BeforeClass
-  public static void setup() throws SQLException {
-    PipelineOptionsFactory.register(PostgresTestOptions.class);
-  }
 
-  @AfterClass
-  public static void tearDown() throws SQLException {
-    JdbcTestDataSet.cleanUpDataTable(dataSource, writeTableName);
+  private static class CreateKVOfNameAndId implements JdbcIO.RowMapper<KV<String, Integer>> {
+    @Override
+    public KV<String, Integer> mapRow(ResultSet resultSet) throws Exception {
+      KV<String, Integer> kv =
+          KV.of(resultSet.getString("name"), resultSet.getInt("id"));
+      return kv;
+    }
   }
 
   /**
@@ -82,40 +74,33 @@ public class JdbcIOIT {
    * <p>Note that IT read tests must not do any data table manipulation (setup/clean up.)
    * @throws SQLException
    */
-  @Test
-  public void testRead() throws SQLException {
-    PostgresTestOptions options = TestPipeline.testingPipelineOptions()
+  public static void main(String[] args) throws SQLException {
+    PostgresTestOptions options = PipelineOptionsFactory.fromArgs().withValidation()
         .as(PostgresTestOptions.class);
-    JdbcIOITReadPipeline.main(TestPipeline.convertToArgs(options));
-  }
+    Pipeline pipeline = Pipeline.create(options);
 
-  
-  /**
-   * Tests writes to a postgres database.
-   *
-   * <p>Write Tests must clean up their data - in this case, it uses a new table every test run so
-   * that it won't interfere with read tests/other write tests. It uses finally to attempt to
-   * clean up data at the end of the test run.
-   * @throws SQLException
-   */
-  /*
-  @Test
-  public void testWrite() throws SQLException {
+    dataSource = JdbcTestDataSet.getDataSource(options);
+    String tableName = JdbcTestDataSet.READ_TABLE_NAME;
+
+
+    PCollection<KV<String, Integer>> output = pipeline.apply(JdbcIO.<KV<String, Integer>>read()
+            .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration.create(dataSource))
+            .withQuery("select name,id from " + tableName)
+            .withRowMapper(new CreateKVOfNameAndId())
+            .withCoder(KvCoder.of(StringUtf8Coder.of(), BigEndianIntegerCoder.of())));
+
+    // TODO: validate actual contents of rows, not just count.
+    PAssert.thatSingleton(
+        output.apply("Count All", Count.<KV<String, Integer>>globally()))
+        .isEqualTo(1000L);
+
+    List<KV<String, Long>> expectedCounts = new ArrayList<>();
+    for (String scientist : JdbcTestDataSet.SCIENTISTS) {
+      expectedCounts.add(KV.of(scientist, 100L));
+    }
+    PAssert.that(output.apply("Count Scientist", Count.<String, Integer>perKey()))
+        .containsInAnyOrder(expectedCounts);
 
     pipeline.run().waitUntilFinish();
-
-    try (Connection connection = dataSource.getConnection()) {
-      try (Statement statement = connection.createStatement()) {
-        try (ResultSet resultSet = statement.executeQuery("select count(*) from "
-            + writeTableName)) {
-          resultSet.next();
-          int count = resultSet.getInt(1);
-
-          Assert.assertEquals(2000, count);
-        }
-      }
-    }
-    // TODO: Actually verify contents of the rows.
   }
-  */
 }
