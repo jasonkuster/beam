@@ -34,7 +34,7 @@ class common_job_properties {
 
   // Sets common top-level job properties for main repository jobs.
   static void setTopLevelMainJobProperties(context,
-                                           String branch = 'master',
+                                           String branch = 'pipeline_test',
                                            int timeout = 100,
                                            String jenkinsExecutorLabel = 'beam') {
     setTopLevelJobProperties(
