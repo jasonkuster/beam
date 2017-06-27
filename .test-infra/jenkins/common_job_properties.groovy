@@ -36,7 +36,7 @@ class common_job_properties {
   static void setTopLevelMainJobProperties(context,
                                            String branch = 'pipeline_test',
                                            int timeout = 100,
-                                           String jenkinsExecutorLabel = 'beam') {
+                                           String jenkinsExecutorLabel = 'master') {
     setTopLevelJobProperties(
             context,
             'beam',
