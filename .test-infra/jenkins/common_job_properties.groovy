@@ -55,7 +55,7 @@ class common_job_properties {
 
     // GitHub project.
     context.properties {
-      githubProjectUrl('https://github.com/apache/' + repositoryName + '/')
+      githubProjectUrl('https://github.com/jasonkuster/' + repositoryName + '/')
     }
 
     // Set JDK version.
@@ -73,7 +73,7 @@ class common_job_properties {
     context.scm {
       git {
         remote {
-          url('https://github.com/apache/' + repositoryName + '.git')
+          url('https://github.com/jasonkuster/' + repositoryName + '.git')
           refspec('+refs/heads/*:refs/remotes/origin/* ' +
                   '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*')
         }
@@ -229,10 +229,10 @@ class common_job_properties {
       }
     }
 
-    context.publishers {
+    // context.publishers {
       // Notify an email address for each failed build (defaults to commits@).
-      mailer(notifyAddress, false, emailIndividuals)
-    }
+      // mailer(notifyAddress, false, emailIndividuals)
+    // }
   }
 
   // Configures the argument list for performance tests, adding the standard
