@@ -25,7 +25,14 @@ pipelineJob('beam_PreCommit_Pipeline') {
 
   // Execute concurrent builds if necessary.
   concurrentBuild()
-
+  parameters {
+    // This is a recommended setup if you want to run the job manually. The
+    // ${sha1} parameter needs to be provided, and defaults to the main branch.
+    stringParam(
+        'sha1',
+        defaultBranch,
+        'Commit id or refname (eg: origin/pr/9/head) you want to build.')
+  }
   // Set common parameters.
   //common_job_properties.setTopLevelMainJobProperties(
   //  delegate,
