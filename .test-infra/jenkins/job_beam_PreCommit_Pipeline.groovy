@@ -30,7 +30,7 @@ pipelineJob('beam_PreCommit_Pipeline') {
     // ${sha1} parameter needs to be provided, and defaults to the main branch.
     stringParam(
         'sha1',
-        defaultBranch,
+        'pipeline_test',
         'Commit id or refname (eg: origin/pr/9/head) you want to build.')
   }
   // Set common parameters.
