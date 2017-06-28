@@ -47,7 +47,7 @@ pipelineJob('beam_PreCommit_Pipeline') {
       scm {
         git {
           remote {
-            github('beam-testing/beam')
+            github('jasonkuster/beam')
             refspec('+refs/heads/*:refs/remotes/origin/* ' +
                     '+refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*')
           }
