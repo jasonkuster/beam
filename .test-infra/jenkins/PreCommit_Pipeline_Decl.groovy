@@ -19,6 +19,7 @@
 
 
 pipeline {
+    agent any
     //agent {
     //    node {
     //        label 'beam'
