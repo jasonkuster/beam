@@ -28,18 +28,9 @@ pipeline {
     options {
         timestamps()
     }
-    environment {
-        VERSION = readMavenPom().getVersion()
-    }
 
     stages {
         stage('Build') {
-            agent {
-                docker {
-                    reuseNode true
-                    image 'maven:3.5.0-jdk-8'
-                }
-            }
             steps {
                 withMaven() {
                     sh 'mvn clean install'
@@ -48,6 +39,7 @@ pipeline {
         }
     }
 }
+
 /*
 import hudson.model.Result
 
