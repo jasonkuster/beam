@@ -78,7 +78,7 @@ pipelineJob('beam_PreCommit_Pipeline') {
     cpsScm {
       // Source code management.
       common_job_properties.setSCM(delegate, 'beam')
-      scriptPath('.test-infra/jenkins/PreCommit_Pipeline_decl.groovy')
+      scriptPath('.test-infra/jenkins/PreCommit_Pipeline_Decl.groovy')
     }
   }
 }
